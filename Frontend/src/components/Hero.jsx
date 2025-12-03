@@ -269,7 +269,7 @@ function LazyThreeContainer() {
             </div>
           }
         >
-          <ThreeHero modelUrl="/models/spie_ibexhouse_chiller_plantroom.glb" />
+          <ThreeHero modelUrl="https://github.com/nikpatil7/mechtron-global-website/releases/download/v1.0.0/spie_ibexhouse_chiller_plantroom.glb" />
         </Suspense>
       ) : (
         <img
