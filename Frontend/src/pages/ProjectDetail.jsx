@@ -41,9 +41,9 @@ export default function ProjectDetail() {
   return (
     <div>
       <SEO
-        title={project ? `${project.title} — Mechtron Global` : 'Project — Mechtron Global'}
+        title={project ? `${project.title} — KataVerse BIM Services` : 'Project — KataVerse BIM Services'}
         description={project?.description}
-        url={`https://www.mechtronglobal.com/projects/${slug || id}`}
+        url={`https://www.kataversebim.com/projects/${slug || id}`}
         image={project?.images?.[0] || '/og-image.jpg'}
         jsonLd={project ? {
           '@context': 'https://schema.org',

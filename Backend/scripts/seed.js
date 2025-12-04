@@ -4,7 +4,7 @@ const Project = require('../models/Project');
 const Testimonial = require('../models/Testimonial');
 
 async function run() {
-  const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/mechtron';
+  const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/KataVerseBIMDB';
   await mongoose.connect(uri);
 
   const projects = [
@@ -72,7 +72,7 @@ async function run() {
 
   const testimonials = [
     {
-      quote: "Mechtron's BIM expertise transformed our project workflow. Exceptional coordination and precision. They delivered ahead of schedule with zero clashes.",
+      quote: "KataVerse's BIM expertise transformed our project workflow. Exceptional coordination and precision. They delivered ahead of schedule with zero clashes.",
       author: 'Rajesh Kumar',
       role: 'Project Manager',
       company: 'ABC Construction',
@@ -107,7 +107,12 @@ async function run() {
 
   await Project.deleteMany({});
   await Testimonial.deleteMany({});
-  await Project.insertMany(projects);
+  
+  // Insert projects one by one to trigger pre-validate hooks properly
+  for (const project of projects) {
+    await Project.create(project);
+  }
+  
   await Testimonial.insertMany(testimonials);
 
   console.log('Seed complete');

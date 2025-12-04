@@ -15,13 +15,15 @@ export default function Footer() {
           {/* Company Info */}
           <div>
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg">
-                {siteConfig.siteName.split(' ').map(word => word[0]).join('')}
-              </div>
+              <img 
+                src="/images/kataverse-logo.jpg" 
+                alt="KataVerse BIM Services" 
+                className="w-12 h-12 rounded-xl shadow-lg object-cover"
+              />
               <span className="text-xl font-bold">{siteConfig.siteName}</span>
             </div>
             <p className="text-gray-400 text-sm mb-6 leading-relaxed">
-              Leading provider of BIM services including modeling, MEP coordination, clash detection, and 3D visualization for construction projects worldwide.
+              Your dedicated partner for advanced BIM solutions, specializing in MEPF disciplines. We empower engineers, contractors, and subcontractors to achieve superior project delivery.
             </p>
             <div className="flex gap-4">
               <a href={siteConfig.social.linkedin} target="_blank" rel="noopener noreferrer" 

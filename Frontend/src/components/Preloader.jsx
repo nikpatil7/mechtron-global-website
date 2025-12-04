@@ -38,10 +38,11 @@ const Preloader = () => {
               transition={{ duration: 0.3 }}
             >
               <div className="w-32 h-32 md:w-40 md:h-40">
-                {/* Replace with: <img src="/logo.png" alt="Mechtron Global" className="w-full h-full object-contain" /> */}
-                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-600 to-teal-500 rounded-2xl shadow-2xl">
-                  <span className="text-white font-bold text-3xl md:text-4xl">MG</span>
-                </div>
+                <img 
+                  src="/images/kataverse-logo.jpg" 
+                  alt="KataVerse BIM Services" 
+                  className="w-full h-full object-contain rounded-2xl shadow-2xl" 
+                />
               </div>
             </motion.div>
 
@@ -53,10 +54,10 @@ const Preloader = () => {
               className="text-center"
             >
               <h1 className="text-2xl md:text-3xl font-bold text-white mb-1">
-                Mechtron Global
+                KataVerse BIM Services
               </h1>
               <p className="text-gray-400 text-sm md:text-base">
-                Engineering Excellence
+                Building Virtually and Visually
               </p>
             </motion.div>
 

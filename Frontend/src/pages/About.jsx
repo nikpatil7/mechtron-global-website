@@ -28,18 +28,18 @@ export default function About() {
   return (
     <div>
       <SEO
-        title="About Us — Mechtron Global"
-        description="Learn about Mechtron Global: a decade of BIM excellence delivering BIM modeling, MEP coordination, clash detection, and 3D visualization."
-        url="https://www.mechtronglobal.com/about"
+        title="About Us — KataVerse BIM Services"
+        description="Learn about KataVerse BIM Services: 8+ years of BIM excellence delivering BIM modeling, MEP coordination, clash detection, and 3D visualization."
+        url="https://www.kataversebim.com/about"
       />
       {/* Hero Section */}
       <section className="relative py-20 bg-gradient-to-r from-primary to-[#0a2f47] text-white">
         <div className="container-custom text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            About Mechtron Global
+            About KataVerse BIM Services
           </h1>
           <p className="text-lg md:text-xl text-white text-opacity-90 max-w-3xl mx-auto">
-            Leading provider of BIM services with over 10 years of experience in transforming construction projects worldwide
+            Leading provider of BIM services with over 8 years of experience in transforming construction projects worldwide
           </p>
         </div>
       </section>
@@ -53,7 +53,7 @@ export default function About() {
             </h2>
             <div className="space-y-4 text-gray-700 leading-relaxed">
               <p>
-                Founded in 2014, Mechtron Global has grown from a small team of BIM enthusiasts to a leading provider of comprehensive BIM services for construction projects worldwide. Our journey began with a simple mission: to revolutionize how construction projects are designed, coordinated, and executed through advanced Building Information Modeling.
+                With 8+ years of experience, KataVerse BIM Services has grown to become a trusted provider of comprehensive BIM services for construction projects. Our journey began with a simple mission: to help contractors, subcontractors, and engineers prevent clashes and costly rework through advanced Building Information Modeling.
               </p>
               <p>
                 Over the past decade, we've completed more than 500 projects across residential, commercial, and high-rise sectors. Our expertise spans BIM modeling, MEP coordination, clash detection, and 3D visualization, helping clients reduce costs, minimize rework, and accelerate project timelines.

@@ -53,7 +53,7 @@ export default function Projects() {
   return (
     <div>
       <SEO
-        title="Projects — Mechtron Global"
+        title="Projects — KataVerse BIM Services"
         description="Explore Mechtron Global's BIM portfolio across commercial, residential, industrial, and educational sectors."
         url="https://www.mechtronglobal.com/projects"
       />

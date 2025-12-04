@@ -22,11 +22,13 @@ export default function Header() {
         <div className="flex justify-between items-center">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-11 h-11 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg group-hover:scale-110 transition-transform">
-              MG
-            </div>
+            <img 
+              src="/images/kataverse-logo.jpg" 
+              alt="KataVerse BIM Services" 
+              className="w-11 h-11 rounded-xl shadow-lg group-hover:scale-110 transition-transform object-cover"
+            />
             <span className="text-xl font-bold text-secondary hidden sm:block group-hover:text-primary transition-colors">
-              Mechtron Global
+              KataVerse BIM Services
             </span>
           </Link>
 

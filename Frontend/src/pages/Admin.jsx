@@ -135,7 +135,7 @@ export default function Admin() {
 
   return (
     <div>
-      <SEO title="Admin — Mechtron Global" description="Admin tools to create projects and testimonials" url="https://www.mechtronglobal.com/admin" />
+      <SEO title="Admin — KataVerse BIM Services" description="Admin tools to create projects and testimonials" url="https://www.kataversebim.com/admin" />
 
       <section className="section-padding bg-light">
         <div className="container-custom max-w-3xl">

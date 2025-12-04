@@ -355,7 +355,7 @@ export default function Contact() {
               allowFullScreen=""
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
-              title="Mechtron Global Office Location"
+              title="KataVerse BIM Services Office Location"
               className="w-full"
             ></iframe>
           </div>

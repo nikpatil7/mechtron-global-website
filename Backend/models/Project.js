@@ -64,11 +64,10 @@ function toSlug(str) {
     .replace(/-+/g, '-');
 }
 
-projectSchema.pre('validate', function(next) {
+projectSchema.pre('validate', function() {
   if (this.title && !this.slug) {
     this.slug = toSlug(this.title);
   }
-  next();
 });
 
 module.exports = mongoose.model('Project', projectSchema);
