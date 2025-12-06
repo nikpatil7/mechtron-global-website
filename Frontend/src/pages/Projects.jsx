@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FaStar, FaTimes, FaDownload } from 'react-icons/fa';
+import { FaStar, FaTimes, FaDownload, FaImages } from 'react-icons/fa';
 import { getProjects } from '../utils/api';
 import SEO from '../components/SEO';
 import RegionSelector from '../components/RegionSelector';
@@ -240,12 +240,36 @@ export default function Projects() {
                       {/* Image */}
                       <div className="relative h-48 overflow-hidden group">
                         {project.images && project.images.length > 0 ? (
-                          <img
-                            src={project.images[0]}
-                            alt={project.title}
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                            loading="lazy"
-                          />
+                          <>
+                            <img
+                              src={project.images[0]}
+                              alt={project.title}
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                              loading="lazy"
+                              onError={(e) => {
+                                // Fallback to gradient if image fails to load
+                                e.target.style.display = 'none';
+                                const fallback = e.target.nextElementSibling;
+                                if (fallback) {
+                                  fallback.classList.remove('hidden');
+                                  fallback.classList.add('flex');
+                                }
+                              }}
+                            />
+                            {/* Fallback gradient (hidden by default, shown on image error) */}
+                            <div className="h-full w-full bg-gradient-to-br from-primary via-[#0a2f47] to-secondary hidden items-center justify-center text-white">
+                              <span className="text-lg font-semibold">{project.title}</span>
+                            </div>
+                            {/* Image count indicator */}
+                            {project.images.length > 1 && (
+                              <div className="absolute top-3 left-3 bg-black/70 backdrop-blur-sm px-2.5 py-1.5 rounded-lg shadow-lg z-20 flex items-center gap-1.5">
+                                <FaImages className="text-white text-xs" />
+                                <span className="text-white text-xs font-semibold">
+                                  {project.images.length}
+                                </span>
+                              </div>
+                            )}
+                          </>
                         ) : (
                           <div className="h-full w-full bg-gradient-to-br from-primary via-[#0a2f47] to-secondary flex items-center justify-center text-white">
                             <span className="text-lg font-semibold">{project.title}</span>

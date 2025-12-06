@@ -38,7 +38,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get project by slug
+// Get project by slug (must be before /:id route)
 router.get('/slug/:slug', async (req, res) => {
   try {
     const project = await Project.findOne({ slug: req.params.slug });
@@ -52,9 +52,24 @@ router.get('/slug/:slug', async (req, res) => {
   }
 });
 
-// Get single project by ID
+// Get single project by ID (must be last to avoid matching slugs)
 router.get('/:id', async (req, res) => {
   try {
+    // Check if it's a valid MongoDB ObjectId (24 hex characters)
+    const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(req.params.id);
+    
+    if (!isValidObjectId) {
+      // If not a valid ObjectId, try to find by slug instead
+      const projectBySlug = await Project.findOne({ slug: req.params.id });
+      if (projectBySlug) {
+        return res.json({ success: true, data: projectBySlug });
+      }
+      return res.status(404).json({ 
+        success: false,
+        error: 'Project not found' 
+      });
+    }
+    
     const project = await Project.findById(req.params.id);
     
     if (!project) {
@@ -67,6 +82,13 @@ router.get('/:id', async (req, res) => {
     res.json({ success: true, data: project });
   } catch (error) {
     console.error('Error fetching project:', error);
+    // Check if it's a MongoDB CastError
+    if (error.name === 'CastError') {
+      return res.status(400).json({ 
+        success: false,
+        error: 'Invalid project ID format' 
+      });
+    }
     res.status(500).json({ 
       success: false,
       error: 'Failed to fetch project' 

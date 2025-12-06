@@ -63,10 +63,17 @@ export default function ProjectForm() {
   const uploadImages = async (files) => {
     const form = new FormData();
     for (const f of files) form.append('files', f);
-    const res = await fetch(`${import.meta.env.VITE_API_BASE || ''}/api/upload/multiple`, {
+    const apiBase = import.meta.env.VITE_API_BASE || 'http://localhost:5000';
+    const res = await fetch(`${apiBase}/api/upload/multiple`, {
       method: 'POST',
       body: form,
     });
+    
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({ error: 'Upload failed' }));
+      throw new Error(errorData.error || errorData.message || `Upload failed: ${res.status} ${res.statusText}`);
+    }
+    
     const data = await res.json();
     if (!data.success) throw new Error(data.error || 'Upload failed');
     return data.urls;

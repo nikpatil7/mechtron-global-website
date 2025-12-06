@@ -47,7 +47,12 @@ const upload = multer({
 // Image optimization function
 async function optimizeImage(inputPath, filename) {
   try {
-    const ext = path.extname(filename);
+    // Check if file exists
+    if (!fs.existsSync(inputPath)) {
+      throw new Error(`File not found: ${inputPath}`);
+    }
+
+    const ext = path.extname(filename).toLowerCase();
     const base = path.basename(filename, ext);
     
     // Generate optimized versions
@@ -57,29 +62,45 @@ async function optimizeImage(inputPath, filename) {
     const optimizedPath = path.join(optimizedDir, optimizedFilename);
     const webpPath = path.join(optimizedDir, webpFilename);
 
-    // Resize and compress JPEG/PNG
-    await sharp(inputPath)
-      .resize(1920, 1080, { 
-        fit: 'inside', 
-        withoutEnlargement: true 
-      })
-      .jpeg({ quality: 85, progressive: true })
-      .png({ compressionLevel: 8, progressive: true })
-      .toFile(optimizedPath);
+    // Get image metadata to determine format
+    const metadata = await sharp(inputPath).metadata();
+    const isJpeg = ['jpg', 'jpeg'].includes(ext);
+    const isPng = ext === 'png';
 
-    // Generate WebP version
-    await sharp(inputPath)
+    // Resize and compress based on format
+    const sharpInstance = sharp(inputPath)
       .resize(1920, 1080, { 
         fit: 'inside', 
         withoutEnlargement: true 
-      })
-      .webp({ quality: 85 })
-      .toFile(webpPath);
+      });
+
+    if (isJpeg) {
+      await sharpInstance.jpeg({ quality: 85, progressive: true }).toFile(optimizedPath);
+    } else if (isPng) {
+      await sharpInstance.png({ compressionLevel: 8, progressive: true }).toFile(optimizedPath);
+    } else {
+      // For other formats (gif, webp, etc.), just resize
+      await sharpInstance.toFile(optimizedPath);
+    }
+
+    // Generate WebP version (if supported)
+    try {
+      await sharp(inputPath)
+        .resize(1920, 1080, { 
+          fit: 'inside', 
+          withoutEnlargement: true 
+        })
+        .webp({ quality: 85 })
+        .toFile(webpPath);
+    } catch (webpError) {
+      console.warn('WebP conversion failed, using original:', webpError.message);
+      // If WebP fails, use optimized version
+    }
 
     return {
       original: `/uploads/${filename}`,
       optimized: `/uploads/optimized/${optimizedFilename}`,
-      webp: `/uploads/optimized/${webpFilename}`
+      webp: fs.existsSync(webpPath) ? `/uploads/optimized/${webpFilename}` : `/uploads/optimized/${optimizedFilename}`
     };
   } catch (error) {
     console.error('Image optimization error:', error);
@@ -96,11 +117,27 @@ async function optimizeImage(inputPath, filename) {
 router.post('/single', (req, res, next) => {
   // Use Cloudinary if configured, otherwise use local storage
   const uploadMiddleware = useCloudinary ? cloudinaryUpload.single('file') : upload.single('file');
-  uploadMiddleware(req, res, next);
+  
+  uploadMiddleware(req, res, (err) => {
+    // Handle multer errors
+    if (err) {
+      console.error('Multer upload error:', err);
+      if (err instanceof multer.MulterError) {
+        if (err.code === 'LIMIT_FILE_SIZE') {
+          return res.status(400).json({ success: false, error: 'File size too large. Maximum size is 10MB.' });
+        }
+        return res.status(400).json({ success: false, error: `Upload error: ${err.message}` });
+      }
+      // Handle other errors (like file type validation)
+      return res.status(400).json({ success: false, error: err.message || 'File upload failed' });
+    }
+    // No error, proceed to handler
+    next();
+  });
 }, async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ error: 'No file uploaded' });
+      return res.status(400).json({ success: false, error: 'No file uploaded' });
     }
     
     // If using Cloudinary, return Cloudinary URL
@@ -119,19 +156,35 @@ router.post('/single', (req, res, next) => {
     }
     
     // Local storage: optimize image
-    const inputPath = req.file.path;
-    const optimizedUrls = await optimizeImage(inputPath, req.file.filename);
-    
-    res.json({ 
-      success: true, 
-      url: optimizedUrls.optimized,
-      urls: optimizedUrls,
-      filename: req.file.filename,
-      storage: 'local'
-    });
+    try {
+      const inputPath = req.file.path;
+      const optimizedUrls = await optimizeImage(inputPath, req.file.filename);
+      
+      res.json({ 
+        success: true, 
+        url: optimizedUrls.optimized,
+        urls: optimizedUrls,
+        filename: req.file.filename,
+        storage: 'local'
+      });
+    } catch (optimizeError) {
+      console.error('Image optimization error:', optimizeError);
+      // Return original file if optimization fails
+      res.json({ 
+        success: true, 
+        url: `/uploads/${req.file.filename}`,
+        urls: {
+          original: `/uploads/${req.file.filename}`,
+          optimized: `/uploads/${req.file.filename}`,
+          webp: `/uploads/${req.file.filename}`
+        },
+        filename: req.file.filename,
+        storage: 'local'
+      });
+    }
   } catch (error) {
     console.error('Upload error:', error);
-    res.status(500).json({ error: 'Failed to process image' });
+    res.status(500).json({ success: false, error: error.message || 'Failed to process image' });
   }
 });
 
@@ -139,11 +192,33 @@ router.post('/single', (req, res, next) => {
 router.post('/multiple', (req, res, next) => {
   // Use Cloudinary if configured, otherwise use local storage
   const uploadMiddleware = useCloudinary ? cloudinaryUpload.array('files', 10) : upload.array('files', 10);
-  uploadMiddleware(req, res, next);
+  
+  uploadMiddleware(req, res, (err) => {
+    // Handle multer errors
+    if (err) {
+      console.error('Multer upload error:', err);
+      if (err instanceof multer.MulterError) {
+        if (err.code === 'LIMIT_FILE_SIZE') {
+          return res.status(400).json({ success: false, error: 'File size too large. Maximum size is 10MB.' });
+        }
+        if (err.code === 'LIMIT_FILE_COUNT') {
+          return res.status(400).json({ success: false, error: 'Too many files. Maximum is 10 files.' });
+        }
+        if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+          return res.status(400).json({ success: false, error: 'Unexpected file field name. Use "files" for multiple uploads.' });
+        }
+        return res.status(400).json({ success: false, error: `Upload error: ${err.message}` });
+      }
+      // Handle other errors (like file type validation)
+      return res.status(400).json({ success: false, error: err.message || 'File upload failed' });
+    }
+    // No error, proceed to handler
+    next();
+  });
 }, async (req, res) => {
   try {
     if (!req.files || !req.files.length) {
-      return res.status(400).json({ error: 'No files uploaded' });
+      return res.status(400).json({ success: false, error: 'No files uploaded' });
     }
     
     // If using Cloudinary, return Cloudinary URLs
@@ -166,8 +241,18 @@ router.post('/multiple', (req, res, next) => {
     // Local storage: optimize images
     const optimizedResults = await Promise.all(
       req.files.map(async (file) => {
-        const inputPath = file.path;
-        return await optimizeImage(inputPath, file.filename);
+        try {
+          const inputPath = file.path;
+          return await optimizeImage(inputPath, file.filename);
+        } catch (error) {
+          console.error(`Error optimizing file ${file.filename}:`, error);
+          // Return original file if optimization fails
+          return {
+            original: `/uploads/${file.filename}`,
+            optimized: `/uploads/${file.filename}`,
+            webp: `/uploads/${file.filename}`
+          };
+        }
       })
     );
     
@@ -181,7 +266,7 @@ router.post('/multiple', (req, res, next) => {
     });
   } catch (error) {
     console.error('Upload error:', error);
-    res.status(500).json({ error: 'Failed to process images' });
+    res.status(500).json({ success: false, error: error.message || 'Failed to process images' });
   }
 });
 

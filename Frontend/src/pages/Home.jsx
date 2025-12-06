@@ -103,12 +103,38 @@ export default function Home() {
                 {/* Image with overlay and badge */}
                 <div className="relative h-56 overflow-hidden">
                   {p.images && p.images.length > 0 ? (
-                    <img
-                      src={p.images[0]}
-                      alt={p.title}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      loading="lazy"
-                    />
+                    <>
+                      <img
+                        src={p.images[0]}
+                        alt={p.title}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        loading="lazy"
+                        onError={(e) => {
+                          // Fallback to gradient if image fails to load
+                          e.target.style.display = 'none';
+                          const fallback = e.target.nextElementSibling;
+                          if (fallback) {
+                            fallback.classList.remove('hidden');
+                            fallback.classList.add('flex');
+                          }
+                        }}
+                      />
+                      {/* Fallback gradient (hidden by default, shown on image error) */}
+                      <div className="w-full h-full bg-gradient-to-br from-primary via-[#0a2f47] to-secondary hidden items-center justify-center text-white">
+                        <span className="text-xl font-bold">{p.title}</span>
+                      </div>
+                      {/* Image count indicator */}
+                      {p.images.length > 1 && (
+                        <div className="absolute top-3 left-3 bg-black/70 backdrop-blur-sm px-2.5 py-1.5 rounded-lg shadow-lg z-20 flex items-center gap-1.5">
+                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                          </svg>
+                          <span className="text-white text-xs font-semibold">
+                            {p.images.length}
+                          </span>
+                        </div>
+                      )}
+                    </>
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-primary via-[#0a2f47] to-secondary flex items-center justify-center text-white">
                       <span className="text-xl font-bold">{p.title}</span>
